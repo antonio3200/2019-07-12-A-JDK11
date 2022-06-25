@@ -5,8 +5,11 @@
 package it.polito.tdp.food;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.food.model.Caloria;
+import it.polito.tdp.food.model.Food;
 import it.polito.tdp.food.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,7 +44,7 @@ public class FoodController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxFood"
-    private ComboBox<?> boxFood; // Value injected by FXMLLoader
+    private ComboBox<Food> boxFood; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -49,13 +52,44 @@ public class FoodController {
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Creazione grafo...");
+    	String porzioni= txtPorzioni.getText();
+    	int nPor=0;
+    	if(porzioni==null) {
+    		txtResult.setText("inserire un numero");
+    		return;
+    	}
+    	try {
+    		nPor=Integer.parseInt(porzioni);
+    		if(nPor<=0) {
+    			txtResult.setText("inserire un numero intero maggiore di 0");
+    			return;
+    		}
+    		this.model.creaGrafo(nPor);
+    		txtResult.appendText("GRAFO CREATO \n");
+    		txtResult.appendText("Numero vertici : "+this.model.nVertici()+"\n");
+    		txtResult.appendText("Numero archi : "+this.model.nArchi());
+    		this.boxFood.getItems().addAll(this.model.getVertici());
+    		
+    		
+    	}catch(NumberFormatException e) {
+    		throw new NumberFormatException("INSERIRE UN NUMERO");
+    	}
     }
     
     @FXML
     void doCalorie(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Analisi calorie...");
+    	//txtResult.appendText("Analisi calorie...");
+    	Food f = this.boxFood.getValue();
+    	if(f==null) {
+    		txtResult.appendText("selezionare un cibo dalla tendina apposita");
+    		return;
+    	}
+    	List<Caloria> result= this.model.getCibiMigliori(f);
+    	txtResult.appendText("Cibi migliori rispetto a "+f.toString()+"\n");
+    	for(int i=0;i<5; i++) {
+    		txtResult.appendText(result.get(i).toString()+"\n");
+    	}
     }
 
     @FXML
